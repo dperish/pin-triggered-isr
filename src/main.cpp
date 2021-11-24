@@ -8,15 +8,17 @@
 #define TWOWIRE_SCL 4
 
 IRAM_ATTR volatile int triggerCount = 0;
-IRAM_ATTR void onTrigger_ISR() {
+IRAM_ATTR void onTrigger_ISR()
+{
   triggerCount += 1;
 }
 
 TouchPad touchPad;
 
-void setup() {
+void setup()
+{
   Serial.begin(9600);
-  
+
   Wire.begin(TWOWIRE_SDA, TWOWIRE_SCL);
 
   pinMode(ISR_PIN, INPUT_PULLUP);
@@ -26,16 +28,20 @@ void setup() {
   Serial.println("\n\nChipId: " + String(touchPad.getChipId()));
   Serial.println("Firmware Version: " + String(touchPad.getFirmwareVersion()));
   touchPad.setLowPowerMode(2);
-
 }
 
-void loop() {
-  if (triggerCount >= 1) {
+void loop()
+{
+  if (triggerCount >= 1)
+  {
     triggerCount = 0;
 
     auto detectionStatus = touchPad.getDetectionStatus();
     auto activeKey = touchPad.readActiveKey();
 
-    Serial.printf("Key: %d \tStatus: %d\n", activeKey, detectionStatus);
+    if (detectionStatus > 0 && activeKey > 0)
+    {
+      Serial.printf("Key: %d \tStatus: %d\n", activeKey, detectionStatus);
+    }
   }
 }
