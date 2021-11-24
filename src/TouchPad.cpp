@@ -4,12 +4,49 @@ void TouchPad::init()
 {
     calibrate();
     reset();
-    disableAutoCalibration();
+    //disableAutoCalibration();
 }
 
 uint8_t TouchPad::getChipId() {
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
     Wire.write(0);
+    Wire.endTransmission();
+
+    Wire.requestFrom(TOUCHPAD_I2C_ADDRESS, 1);
+    auto chipId = Wire.read();
+
+    return chipId;
+}
+
+uint8_t TouchPad::getFirmwareVersion() {
+    Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
+    Wire.write(1);
+    Wire.endTransmission();
+
+    Wire.requestFrom(TOUCHPAD_I2C_ADDRESS, 1);
+    auto chipId = Wire.read();
+
+    return chipId;
+}
+
+uint8_t TouchPad::getDetectionStatus() {
+    Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
+    Wire.write(2);
+    Wire.endTransmission();
+
+    Wire.requestFrom(TOUCHPAD_I2C_ADDRESS, 1);
+    auto result = Wire.read();
+
+    return result;
+}
+
+/** Sets the number of 8 ms intervals between key
+    measurements. Longer intervals between measurements yield a lower power consumption but
+    at the expense of a slower response to touch */
+uint8_t TouchPad::setLowPowerMode(uint8_t intervals) {
+    Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
+    Wire.write(54);
+    Wire.write(intervals);
     Wire.endTransmission();
 
     Wire.requestFrom(TOUCHPAD_I2C_ADDRESS, 1);

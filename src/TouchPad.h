@@ -28,8 +28,12 @@ class TouchPad {
         void calibrate();
         void disableAutoCalibration();
         void reset();
-        uint8_t getChipId();
 
+        uint8_t getChipId();
+        uint8_t getFirmwareVersion();
+        uint8_t getDetectionStatus();
+
+        uint8_t setLowPowerMode(uint8_t intervals);
 
         int readActiveKey();
         int readActiveAddress();
