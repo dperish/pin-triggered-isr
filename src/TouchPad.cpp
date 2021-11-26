@@ -4,7 +4,7 @@ void TouchPad::init()
 {
     calibrate();
     reset();
-    //disableAutoCalibration();
+    disableAutoCalibration();
 }
 
 uint8_t TouchPad::getChipId() {
@@ -61,7 +61,7 @@ void TouchPad::calibrate()
     Wire.write(TOUCHPAD_REGISTER_CALIBRATE);
     Wire.write(TOUCHPAD_NONZERO_VALUE);
     Wire.endTransmission();
-    delay(1000);
+    delay(100);
 }
 
 void TouchPad::reset()
@@ -71,9 +71,8 @@ void TouchPad::reset()
     Wire.write(TOUCHPAD_NONZERO_VALUE);
     Wire.endTransmission();
 
-    delay(1000);
+    delay(250);
     Wire.begin();
-    delay(1000);
 }
 
 /** Sets Max On Duration to zero, effectively disabling immediate/auto calibration */

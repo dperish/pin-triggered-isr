@@ -7,7 +7,7 @@
 #define TWOWIRE_SDA 5
 #define TWOWIRE_SCL 4
 
-IRAM_ATTR void onTrigger_ISR(void* touchPad)
+IRAM_ATTR void onKeyDown_ISR(void* touchPad)
 {
     auto touchPadRef = static_cast<TouchPad*>(touchPad);
 
@@ -16,7 +16,7 @@ IRAM_ATTR void onTrigger_ISR(void* touchPad)
 
     if (detectionStatus > 0 && activeKey > 0)
     {
-      Serial.printf("Key: %d \tStatus: %d\n", activeKey, detectionStatus);
+      Serial.printf("onKeyDown_ISR - Key: %d \tStatus: %d\n", activeKey, detectionStatus);
     }
 }
 
@@ -29,7 +29,7 @@ void setup()
   Wire.begin(TWOWIRE_SDA, TWOWIRE_SCL);
 
   pinMode(ISR_PIN, INPUT_PULLUP);
-  attachInterruptArg(ISR_PIN, onTrigger_ISR, &touchPad, FALLING);
+  attachInterruptArg(ISR_PIN, onKeyDown_ISR, &touchPad, FALLING);
 
   touchPad.init();
   Serial.println("\n\nChipId: " + String(touchPad.getChipId()));
