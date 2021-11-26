@@ -1,13 +1,39 @@
 #include "TouchPad.h"
 
-void TouchPad::init()
+IRAM_ATTR static void onKeyDown_ISR(void *self)
 {
+    auto touchPad = static_cast<TouchPad *>(self);
+
+    auto detectionStatus = touchPad->getDetectionStatus();
+    auto activeKey = touchPad->readActiveKey();
+
+    if (detectionStatus > 0 && activeKey > 0)
+    {
+        touchPad->keyPress(activeKey);
+    }
+}
+
+void TouchPad::keyPress(int keyAddress)
+{
+    _onKeyPress(keyAddress);
+}
+
+void TouchPad::init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> onKeyPress)
+{
+    _onKeyPress = onKeyPress;
+
+    Wire.begin(sda, scl);
+
+    pinMode(isrPin, INPUT_PULLUP);
+    attachInterruptArg(isrPin, onKeyDown_ISR, this, FALLING);
+
     calibrate();
     reset();
     disableAutoCalibration();
 }
 
-uint8_t TouchPad::getChipId() {
+uint8_t TouchPad::getChipId()
+{
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
     Wire.write(0);
     Wire.endTransmission();
@@ -18,7 +44,8 @@ uint8_t TouchPad::getChipId() {
     return chipId;
 }
 
-uint8_t TouchPad::getFirmwareVersion() {
+uint8_t TouchPad::getFirmwareVersion()
+{
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
     Wire.write(1);
     Wire.endTransmission();
@@ -29,7 +56,8 @@ uint8_t TouchPad::getFirmwareVersion() {
     return chipId;
 }
 
-uint8_t TouchPad::getDetectionStatus() {
+uint8_t TouchPad::getDetectionStatus()
+{
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
     Wire.write(2);
     Wire.endTransmission();
@@ -43,9 +71,10 @@ uint8_t TouchPad::getDetectionStatus() {
 /** Sets the number of 8 ms intervals between key
     measurements. Longer intervals between measurements yield a lower power consumption but
     at the expense of a slower response to touch */
-uint8_t TouchPad::setLowPowerMode(uint8_t intervals) {
+uint8_t TouchPad::setLowPowerMode(uint8_t intervals)
+{
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
-    Wire.write(54);
+    Wire.write(TOUCHPAD_REGISTER_LPMODE);
     Wire.write(intervals);
     Wire.endTransmission();
 
@@ -76,7 +105,8 @@ void TouchPad::reset()
 }
 
 /** Sets Max On Duration to zero, effectively disabling immediate/auto calibration */
-void TouchPad::disableAutoCalibration() {
+void TouchPad::disableAutoCalibration()
+{
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
     Wire.write(TOUCHPAD_REGISTER_MAX_ON_DURATION);
     Wire.write(0);
@@ -115,7 +145,8 @@ int TouchPad::readActiveAddress()
     Wire.requestFrom(TOUCHPAD_I2C_ADDRESS, 1);
     keyNumber = Wire.read();
 
-    if (isTouching == 1) {
+    if (isTouching == 1)
+    {
         return keyNumber;
     }
 
