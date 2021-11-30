@@ -1,32 +1,38 @@
 #include "TouchPad.h"
 
-IRAM_ATTR static void onKeyDown_ISR(void *self)
-{
-    auto touchPad = static_cast<TouchPad *>(self);
+// IRAM_ATTR static void onKeyDown_ISR(void *self)
+// {
+//     auto touchPad = static_cast<TouchPad *>(self);
 
-    auto detectionStatus = touchPad->getDetectionStatus();
-    auto activeKey = touchPad->readActiveKey();
+//     auto detectionStatus = touchPad->getDetectionStatus();
+//     auto activeKey = touchPad->readActiveKey();
 
-    if (detectionStatus > 0 && activeKey > 0)
-    {
-        touchPad->keyPress(activeKey);
-    }
-}
+//     if (detectionStatus > 0 && activeKey > 0)
+//     {
+//         touchPad->keyPress(activeKey);
+//     }
+// }
 
-void TouchPad::keyPress(int keyAddress)
-{
-    _onKeyPress(keyAddress);
-}
+// void TouchPad::keyPress(int keyAddress)
+// {
+//     _onKeyPress(keyAddress);
+// }
 
-void TouchPad::init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> onKeyPress)
-{
-    _onKeyPress = onKeyPress;
+// void TouchPad::init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> onKeyPress)
+// {
+//     _onKeyPress = onKeyPress;
 
-    Wire.begin(sda, scl);
+//     Wire.begin(sda, scl);
 
-    pinMode(isrPin, INPUT_PULLUP);
-    attachInterruptArg(isrPin, onKeyDown_ISR, this, FALLING);
+//     pinMode(isrPin, INPUT_PULLUP);
+//     attachInterruptArg(isrPin, onKeyDown_ISR, this, FALLING);
 
+//     calibrate();
+//     reset();
+//     disableAutoCalibration();
+// }
+
+void TouchPad::init() {
     calibrate();
     reset();
     disableAutoCalibration();

@@ -28,7 +28,8 @@ class TouchPad
 public:
     TouchPad(){};
 
-    void init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> callback);
+    void init();
+    // void init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> callback);
     void calibrate();
     void disableAutoCalibration();
     void reset();
@@ -45,7 +46,7 @@ public:
     void keyPress(int keyAddress);
 
 private:
-    std::function<void(int)> _onKeyPress;
+    // std::function<void(int)> _onKeyPress;
 };
 
 #endif
