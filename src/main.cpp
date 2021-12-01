@@ -9,29 +9,35 @@
 
 TouchPad touchPad;
 
-void onKeyPress(int keyAddress) {
-  Serial.println("Key: " + String(keyAddress));
+void checkForKeyPresses()
+{
+  if (!touchPad.isKeyActive) {
+    return;
+  }
+  
+  touchPad.isKeyActive = false;
+
+  int activeKey = touchPad.readActiveKey();
+
+  if (activeKey > 0)
+  {
+    Serial.printf("active key: %d\n", activeKey);
+  }
 }
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(921600);
+  delay(10);
 
-  touchPad.init(
-    TWOWIRE_SDA, 
-    TWOWIRE_SCL, 
-    ISR_PIN, 
-    onKeyPress
-  );
+  touchPad.init(TWOWIRE_SDA, TWOWIRE_SCL, ISR_PIN);
+  touchPad.setLowPowerMode(1);
 
-  touchPad.setLowPowerMode(2);
-
-  Serial.println("\n\nChipId: " + String(touchPad.getChipId()));
+  Serial.println("\nChipId: " + String(touchPad.getChipId()));
   Serial.println("Firmware Version: " + String(touchPad.getFirmwareVersion()));
-
-
 }
 
 void loop()
 {
+  checkForKeyPresses();
 }

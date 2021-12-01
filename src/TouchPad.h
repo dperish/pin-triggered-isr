@@ -1,5 +1,4 @@
-#ifndef _TOUCHPAD_H
-#define _TOUCHPAD_H
+#pragma once
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -17,6 +16,8 @@
 
 #define TOUCHPAD_NONZERO_VALUE 0xFF
 
+
+
 /** Wrapper library for the Atmel AT42QT1070.
  * 
  * Library is designed to work by polling, to play nice with
@@ -26,9 +27,11 @@
 class TouchPad
 {
 public:
+    volatile bool isKeyActive;
+
     TouchPad(){};
 
-    void init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> callback);
+    void init(int sda, int scl, int isrPin);
     void calibrate();
     void disableAutoCalibration();
     void reset();
@@ -37,15 +40,10 @@ public:
     uint8_t getFirmwareVersion();
     uint8_t getDetectionStatus();
 
-    uint8_t setLowPowerMode(uint8_t intervals);
+    void setLowPowerMode(uint8_t intervals);
 
     int readActiveKey();
-    int readActiveAddress();
-
-    void keyPress(int keyAddress);
 
 private:
-    std::function<void(int)> _onKeyPress;
+    int readActiveAddress();
 };
-
-#endif
