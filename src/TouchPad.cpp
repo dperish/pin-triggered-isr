@@ -1,38 +1,17 @@
 #include "TouchPad.h"
 
-// IRAM_ATTR static void onKeyDown_ISR(void *self)
-// {
-//     auto touchPad = static_cast<TouchPad *>(self);
+void IRAM_ATTR onKeyDown_ISR(void *self) {
+    auto touchPad = static_cast<TouchPad *>(self);
+    touchPad->isKeyActive = true;
+};
 
-//     auto detectionStatus = touchPad->getDetectionStatus();
-//     auto activeKey = touchPad->readActiveKey();
+void TouchPad::init(int sda, int scl, int isrPin) {
+    Wire.begin(sda, scl);
+    delay(1000);
 
-//     if (detectionStatus > 0 && activeKey > 0)
-//     {
-//         touchPad->keyPress(activeKey);
-//     }
-// }
+    pinMode(isrPin, INPUT_PULLUP);
+    attachInterruptArg(isrPin, onKeyDown_ISR, this, FALLING);
 
-// void TouchPad::keyPress(int keyAddress)
-// {
-//     _onKeyPress(keyAddress);
-// }
-
-// void TouchPad::init(int sda, int scl, int isrPin, std::function<void(int keyAddress)> onKeyPress)
-// {
-//     _onKeyPress = onKeyPress;
-
-//     Wire.begin(sda, scl);
-
-//     pinMode(isrPin, INPUT_PULLUP);
-//     attachInterruptArg(isrPin, onKeyDown_ISR, this, FALLING);
-
-//     calibrate();
-//     reset();
-//     disableAutoCalibration();
-// }
-
-void TouchPad::init() {
     calibrate();
     reset();
     disableAutoCalibration();
@@ -77,17 +56,12 @@ uint8_t TouchPad::getDetectionStatus()
 /** Sets the number of 8 ms intervals between key
     measurements. Longer intervals between measurements yield a lower power consumption but
     at the expense of a slower response to touch */
-uint8_t TouchPad::setLowPowerMode(uint8_t intervals)
+void TouchPad::setLowPowerMode(uint8_t intervals)
 {
     Wire.beginTransmission(TOUCHPAD_I2C_ADDRESS);
     Wire.write(TOUCHPAD_REGISTER_LPMODE);
     Wire.write(intervals);
     Wire.endTransmission();
-
-    Wire.requestFrom(TOUCHPAD_I2C_ADDRESS, 1);
-    auto chipId = Wire.read();
-
-    return chipId;
 }
 
 void TouchPad::calibrate()

@@ -9,43 +9,35 @@
 
 TouchPad touchPad;
 
-volatile bool keyPresses = false;
-IRAM_ATTR static void onKeyDown_ISR() {
-  Serial.print("onKeyDown_ISR\n");
-  keyPresses = true;
+void checkForKeyPresses()
+{
+  if (!touchPad.isKeyActive) {
+    return;
+  }
+  
+  touchPad.isKeyActive = false;
+
+  int activeKey = touchPad.readActiveKey();
+
+  if (activeKey > 0)
+  {
+    Serial.printf("active key: %d\n", activeKey);
+  }
 }
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(921600);
+  delay(10);
 
-  Wire.begin(TWOWIRE_SDA, TWOWIRE_SCL);
-  delay(1000);
+  touchPad.init(TWOWIRE_SDA, TWOWIRE_SCL, ISR_PIN);
+  touchPad.setLowPowerMode(1);
 
-  pinMode(ISR_PIN, INPUT_PULLUP);
-  attachInterrupt(ISR_PIN, onKeyDown_ISR, FALLING);
-
-  touchPad.init();
-  touchPad.setLowPowerMode(2);
-
-  Serial.println("\n\nChipId: " + String(touchPad.getChipId()));
+  Serial.println("\nChipId: " + String(touchPad.getChipId()));
   Serial.println("Firmware Version: " + String(touchPad.getFirmwareVersion()));
-
 }
 
 void loop()
 {
-
-
-
-  if (keyPresses) {
-    keyPresses = false;
-    
-    int activeKey = touchPad.readActiveKey();
-
-    if (activeKey > 0) {
-      Serial.printf("active key: %d\n", activeKey);
-    }
-  }
-
+  checkForKeyPresses();
 }
